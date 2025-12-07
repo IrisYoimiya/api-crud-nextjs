@@ -50,3 +50,28 @@ export async function DELETE(request, {params}) {
         },{status: 200}
     )
 }
+
+export async function PATCH(request, {params}) {
+    const id = parseInt(params.id)
+
+    const {name, email, address} = await request.json()
+
+    const user = await prisma.user.update({
+        where: {
+            id,
+        },
+        data: {
+            name: name,
+            email: email,
+            address: address
+        },
+    });
+
+    return NextResponse.json(
+        {
+            success: true,
+            message: "Data updated succes",
+            data: user
+        },{status : 200}
+    )
+}
