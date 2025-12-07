@@ -34,44 +34,68 @@ export async function GET(request, {params}) {
 export async function DELETE(request, {params}) {
     const id = parseInt(params.id)
 
-    const {name, email, address} = await request.json()
-    await prisma.user.delete(
-        {
-            where: {
-                id,
+    try {
+        await prisma.user.delete(
+            {
+                where: {
+                    id,
+                }
             }
+        )
+        return NextResponse.json(
+            {
+                success: true,
+                message: "User telah dihapus"
+            },{status: 200}
+        )
+    } catch (error) {
+        if(error.code === 'P2025'){
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "user tidak ditemukan"
+                },{status: 404}
+            )
         }
-    )
+        return NextResponse.json(
+            {
+                success: false,
+                message: error.message
+            },{status: 500}
+        )
+    }
 
-    return NextResponse.json(
-        {
-            success: true,
-            message: "User telah dihapus"
-        },{status: 200}
-    )
 }
 
 export async function PATCH(request, {params}) {
     const id = parseInt(params.id)
 
-    const {name, email, address} = await request.json()
-
-    const user = await prisma.user.update({
-        where: {
-            id,
-        },
-        data: {
-            name: name,
-            email: email,
-            address: address
-        },
-    });
-
-    return NextResponse.json(
-        {
-            success: true,
-            message: "Data updated succes",
-            data: user
-        },{status : 200}
-    )
+    try {
+        const {name, email, address} = await request.json()
+    
+        const user = await prisma.user.update({
+            where: {
+                id,
+            },
+            data: {
+                name: name,
+                email: email,
+                address: address
+            },
+        });
+    
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Data updated succes",
+                data: user
+            },{status : 200}
+        )
+    } catch (error) {
+        return NextResponse.json({
+            success: false,
+            message: error.message,
+            data: null
+        },{status: 404})
+    }
 }
